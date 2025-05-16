@@ -1,0 +1,423 @@
+{% extends 'base.html' %}
+{% block title %}Predicción por Lotes - FGR{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.98) 100%);
+        border-radius: 15px;
+        border: 1px solid rgba(0, 247, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 247, 255, 0.05);
+    }
+    
+    .file-upload-area {
+        background: rgba(30, 30, 30, 0.7) !important;
+        border: 2px dashed rgba(0, 247, 255, 0.3) !important;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .file-upload-area:hover {
+        background: rgba(40, 40, 40, 0.7) !important;
+        border-color: var(--primary-neon) !important;
+    }
+    
+    .file-upload-area.border-primary {
+        border-color: var(--primary-neon) !important;
+        box-shadow: 0 0 15px rgba(0, 247, 255, 0.2);
+    }
+    
+    .file-upload-area.border-success {
+        border-color: #00cc99 !important;
+        box-shadow: 0 0 15px rgba(0, 204, 153, 0.2);
+    }
+    
+    .metric-card {
+        background: linear-gradient(145deg, #1a1a1a, #202020);
+        border: 1px solid rgba(0, 247, 255, 0.1);
+        transition: all 0.3s ease;
+    }
+    
+    .metric-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 247, 255, 0.1) !important;
+        border-color: var(--primary-neon);
+    }
+    
+    .progress {
+        background-color: #2a2a2a;
+        height: 12px;
+        border-radius: 6px;
+    }
+    
+    .progress-bar {
+        background-color: var(--primary-neon);
+        box-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+    }
+    
+    .results-table {
+        --bs-table-bg: transparent;
+        --bs-table-color: var(--text-light);
+        --bs-table-border-color: #333;
+    }
+    
+    .results-table thead th {
+        background-color: rgba(0, 247, 255, 0.1);
+        color: var(--primary-neon);
+        border-bottom: 2px solid var(--primary-neon);
+    }
+    
+    .results-table tbody tr {
+        border-bottom: 1px solid #333;
+    }
+    
+    .results-table tbody tr:hover {
+        background-color: rgba(0, 247, 255, 0.03) !important;
+    }
+    
+    .badge {
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+    }
+
+        /* Correcciones de contraste */
+    .file-upload-area p,
+    .file-upload-area small,
+    .text-muted {
+        color: #b0b0b0 !important; /* Texto más claro para mejor contraste */
+    }
+    
+    .file-upload-area:hover p,
+    .file-upload-area:hover small {
+        color: #d0d0d0 !important;
+    }
+    
+    .error-message {
+        color: #ffb3b3 !important; /* Texto de error más claro */
+    }
+    
+    .section-title {
+        color: var(--text-light) !important; /* Asegurar que títulos sean visibles */
+        text-shadow: 0 0 8px rgba(0, 247, 255, 0.3);
+    }
+    
+    .metric-label {
+        color: #e0e0e0 !important; /* Texto de métricas más claro */
+    }
+    
+    .metric-value {
+        color: var(--text-light) !important;
+        font-weight: 500;
+    }
+
+        /* Estilo unificado para botones principales */
+    .btn-process {
+        background: transparent;
+        border: 2px solid var(--primary-neon);
+        color: var(--primary-neon);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 12px 30px;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+    
+    .btn-process:hover {
+        background: var(--primary-neon);
+        color: #121212;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.4);
+        transform: translateY(-2px);
+    }
+    
+    .btn-process::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(
+            to bottom right,
+            rgba(0, 247, 255, 0.3),
+            transparent 50%,
+            transparent
+        );
+        transform: rotate(30deg);
+        transition: all 0.5s ease;
+    }
+    
+    .btn-process:hover::before {
+        left: 100%;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado con icono -->
+            <div class="text-center mb-5">
+                <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                    <i class="bi bi-database text-white" style="font-size: 3rem;"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3 section-title">Predicción <span class="text-primary">por Lotes</span></h1>
+                <p class="lead" style="color: #c0c0c0;">Sube un archivo XLSX con múltiples casos para obtener predicciones automatizadas</p>
+            </div>
+
+            <!-- Tarjeta del formulario -->
+            <div class="card border-0 shadow-lg form-container">
+                <div class="card-body p-5">
+                    <form method="post" enctype="multipart/form-data" class="row g-4">
+                        {% csrf_token %}
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ form.model.id_for_label }}" class="form-label">
+                                    <i class="bi bi-diagram-3 text-primary me-2"></i>{{ form.model.label }}
+                                </label>
+                                {{ form.model }}
+                                <small class="form-text text-muted">Seleccione el modelo predictivo a utilizar</small>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="form-label">
+                                    <i class="bi bi-file-earmark-arrow-up text-primary me-2"></i>Dataset
+                                </label>
+                                <div class="file-upload-area rounded-3 p-4 text-center position-relative">
+                                    <input type="file" name="file" id="fileInput" class="d-none" accept=".xlsx, .csv" required>
+                                    <label for="fileInput" class="stretched-label"></label>
+                                    <i class="bi bi-cloud-arrow-up display-6" style="color: #a0a0a0;"></i>
+                                    <p class="mb-2" style="color: #d0d0d0;">Arrastra tu archivo aquí o haz clic para seleccionar</p>
+                                    <small>Formatos soportados: .csv, .xlsx (Tamaño máximo: 5MB)</small>
+                                    <div id="fileName" class="mt-2 text-primary fw-medium">No se ha seleccionado ningún archivo</div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-process btn-lg">
+                                <i class="bi bi-calculator me-2"></i>Procesar Archivo
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Mensajes de error -->
+            {% if error %}
+            <div class="card border-0 shadow-lg mt-5 border-danger border-2">
+                <div class="card-body p-4">
+                    <div class="d-flex align-items-center">
+                        <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: rgba(220, 53, 69, 0.2) !important;">
+                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                        </div>
+                        <div>
+                            <h4 class="mb-1" style="color: #ff6b6b;">Error en el procesamiento</h4>
+                            <p class="mb-0 error-message">{{ error }}</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Resultados -->
+            {% if accuracy %}
+            <div class="card border-0 shadow-lg mt-5 form-container">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 80px; height: 80px;">
+                            <i class="bi bi-clipboard2-check text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h2 class="h2 fw-bold mb-3 section-title">Resultados del <span class="text-primary">Procesamiento</span></h2>
+                        <p style="color: #b0b0b0;">Análisis predictivo realizado sobre {{ num_cases }} casos</p>
+                    </div>
+                    
+                    <div class="row g-4">
+                        <div class="col-md-6">
+                            <div class="card metric-card h-100">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-speedometer2 text-primary"></i>
+                                        </div>
+                                        <h3 class="h5 mb-0 section-title">Métricas del Modelo</h3>
+                                    </div>
+                                    
+                                    <div class="mt-4">
+                                        <div class="d-flex justify-content-between mb-3">
+                                            <span class="metric-label">Exactitud (Accuracy):</span>
+                                            <span class="metric-value">{{ accuracy }}%</span>
+                                        </div>
+                                        
+                                        <div class="progress mb-4">
+                                            <div class="progress-bar" role="progressbar" style="width: {{ accuracy }}%" aria-valuenow="{{ accuracy }}" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="metric-label">Precisión:</span>
+                                            <span class="metric-value">{{ precision }}%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between mb-2">
+                                            <span class="metric-label">Sensibilidad:</span>
+                                            <span class="metric-value">{{ recall }}%</span>
+                                        </div>
+                                        <div class="d-flex justify-content-between">
+                                            <span class="metric-label">F1-Score:</span>
+                                            <span class="metric-value">{{ f1 }}%</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="col-md-6">
+                            <div class="card metric-card h-100">
+                                <div class="card-body p-4">
+                                    <div class="d-flex align-items-center mb-3">
+                                        <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                            <i class="bi bi-grid text-primary"></i>
+                                        </div>
+                                        <h3 class="h5 mb-0 section-title">Matriz de Confusión</h3>
+                                    </div>
+                                    
+                                    <div class="mt-4 text-center">
+                                        <img src="data:image/png;base64,{{ plot_url }}" class="img-fluid rounded-3" alt="Matriz de Confusión">
+                                        <small class="text-muted d-block mt-2">Visualización del rendimiento del modelo predictivo</small>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="text-center mt-5">
+                        <a href="#" class="btn btn-outline-primary me-3">
+                            <i class="bi bi-download me-2"></i>Descargar Resultados
+                        </a>
+                        <a href="#" class="btn btn-outline-secondary">
+                            <i class="bi bi-eye me-2"></i>Ver Detalles
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+            
+            {% if predictions_table %}
+            <div class="card border-0 shadow-lg mt-5 form-container">
+                <div class="card-body p-5">
+                    <div class="d-flex align-items-center mb-4">
+                        <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                            <i class="bi bi-table text-primary"></i>
+                        </div>
+                        <h3 class="h5 mb-0 section-title">Predicciones <span class="text-primary">Detalladas</span></h3>
+                    </div>
+            
+                    <div class="table-responsive">
+                        <table class="table results-table">
+                            <thead>
+                                <tr>
+                                    <th class="ps-4"># Fila</th>
+                                    <th>Predicción</th>
+                                    <th class="pe-4 text-end">Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for row in predictions_table %}
+                                <tr>
+                                    <td class="ps-4 fw-medium">{{ row.index }}</td>
+                                    <td>
+                                        {% if row.prediction == 1 %}
+                                            <span class="badge bg-danger bg-opacity-10 text-danger">Positivo (FGR)</span>
+                                        {% elif row.prediction == 0 %}
+                                            <span class="badge bg-success bg-opacity-10 text-success">Negativo (Normal)</span>
+                                        {% else %}
+                                            <span class="badge bg-secondary bg-opacity-10 text-secondary">{{ row.prediction }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="pe-4 text-end">
+                                        {% if row.prediction == 1 %}
+                                            <i class="bi bi-exclamation-triangle-fill text-danger"></i>
+                                        {% else %}
+                                            <i class="bi bi-check-circle-fill text-success"></i>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+            
+                    <div class="d-flex justify-content-between align-items-center mt-4">
+                        <div class="text-muted small">
+                            Mostrando {{ predictions_table|length }} registros
+                        </div>
+                        <button class="btn btn-sm btn-outline-primary">
+                            <i class="bi bi-download me-2"></i>Exportar Resultados
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        
+            <!-- Botón de volver -->
+            <div class="text-center mt-5">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 py-3">
+                    <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Manejo de la subida de archivos
+    const fileInput = document.getElementById('fileInput');
+    const fileUploadArea = document.querySelector('.file-upload-area');
+    const fileNameDisplay = document.getElementById('fileName');
+
+    // Click en el área
+    fileUploadArea.addEventListener('click', (e) => {
+        if (e.target !== fileInput && e.target.tagName !== 'A') {
+            fileInput.click();
+        }
+    });
+
+    // Arrastrar y soltar
+    fileUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.add('border-primary');
+    });
+
+    fileUploadArea.addEventListener('dragleave', () => {
+        fileUploadArea.classList.remove('border-primary');
+    });
+
+    fileUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        fileUploadArea.classList.remove('border-primary');
+        
+        if (e.dataTransfer.files.length) {
+            fileInput.files = e.dataTransfer.files;
+            updateFileName();
+        }
+    });
+
+    // Cambio de archivo
+    fileInput.addEventListener('change', updateFileName);
+
+    function updateFileName() {
+        if (fileInput.files.length > 0) {
+            fileNameDisplay.textContent = fileInput.files[0].name;
+            fileUploadArea.classList.add('border-success');
+            fileUploadArea.classList.remove('border-primary');
+        } else {
+            fileNameDisplay.textContent = 'No se ha seleccionado ningún archivo';
+            fileUploadArea.classList.remove('border-success', 'border-primary');
+        }
+    }
+</script>
+{% endblock %}

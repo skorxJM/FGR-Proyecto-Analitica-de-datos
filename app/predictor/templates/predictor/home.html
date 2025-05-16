@@ -1,0 +1,149 @@
+{% extends 'base.html' %}
+{% block title %}Inicio - FGR{% endblock %}
+
+{% block extra_head %}
+<style>
+    .hero-section {
+        background: linear-gradient(135deg, rgba(10,10,10,0.9) 0%, rgba(30,30,30,0.95) 100%);
+        border-radius: 20px;
+        padding: 3rem;
+        margin-bottom: 3rem;
+        border: 1px solid rgba(0, 247, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 247, 255, 0.05);
+    }
+    
+    .icon-wrapper {
+        background: rgba(0, 247, 255, 0.1) !important;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+        transition: all 0.3s ease;
+    }
+    
+    .hover-effect {
+        transition: all 0.3s ease;
+        background: linear-gradient(145deg, #1a1a1a, #202020);
+    }
+    
+    .hover-effect:hover {
+        transform: translateY(-5px) !important;
+        box-shadow: 0 10px 25px rgba(0, 247, 255, 0.15) !important;
+        border: 1px solid var(--primary-neon) !important;
+    }
+    
+    .btn-primary {
+        background: transparent;
+        border: 2px solid var(--primary-neon);
+        color: var(--primary-neon);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-neon);
+        color: #121212;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--secondary-neon);
+        color: var(--secondary-neon);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-outline-primary:hover {
+        background: var(--secondary-neon);
+        color: #121212;
+        box-shadow: 0 0 20px rgba(255, 0, 247, 0.4);
+    }
+    
+    .feature-icon {
+        font-size: 2.5rem;
+        margin-bottom: 1.5rem;
+        color: var(--primary-neon);
+    }
+    
+    .glow-text {
+        text-shadow: 0 0 10px rgba(0, 247, 255, 0.5);
+    }
+    
+    .pulse {
+        animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+        0% { box-shadow: 0 0 0 0 rgba(0, 247, 255, 0.4); }
+        70% { box-shadow: 0 0 0 15px rgba(0, 247, 255, 0); }
+        100% { box-shadow: 0 0 0 0 rgba(0, 247, 255, 0); }
+    }
+
+    /* Nuevos estilos para mejorar la visibilidad */
+    h1, h2, h3, h4, h5, h6 {
+        color: var(--text-light) !important;
+        font-weight: 600;
+    }
+    
+    .card h3,
+    .card h4 {
+        color: var(--text-light) !important;
+        text-shadow: 0 0 5px rgba(255,255,255,0.1);
+    }
+    
+    .feature-icon {
+        filter: drop-shadow(0 0 5px rgba(0, 247, 255, 0.5));
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Hero Section -->
+            <div class="hero-section text-center">
+                <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center mb-4 pulse" style="width: 100px; height: 100px;">
+                    <i class="bi bi-activity text-white" style="font-size: 3rem;"></i>
+                </div>
+                <h1 class="display-3 fw-bold mb-3 glow-text">Sistema de Predicción <span class="text-primary">FGR</span></h1>
+                <p class="lead mb-4">Plataforma avanzada de análisis predictivo con tecnología de machine learning para diagnóstico asistido</p>
+                <div class="d-flex justify-content-center gap-3">
+                    <a href="{% url 'predict_individual' %}" class="btn btn-primary btn-lg px-4">
+                        <i class="bi bi-person-vcard me-2"></i>Predicción Individual
+                    </a>
+                    <a href="{% url 'predict_batch' %}" class="btn btn-outline-primary btn-lg px-4">
+                        <i class="bi bi-database me-2"></i>Predicción por Lotes
+                    </a>
+                </div>
+            </div>
+
+            <!-- Features Grid -->
+            <div class="row g-4 mt-4">
+                <div class="col-md-4">
+                    <div class="card h-100 hover-effect p-4">
+                        <i class="bi bi-shield-lock feature-icon"></i>
+                        <h3 class="h4 mb-3">Seguro y Confiable</h3>
+                        <p class="text-muted">Prototipo con medidas de seguridad básicas para fines de investigación.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 hover-effect p-4">
+                        <i class="bi bi-lightning-charge feature-icon"></i>
+                        <h3 class="h4 mb-3">Resultados Rápidos</h3>
+                        <p class="text-muted">Arquitectura optimizada que entrega predicciones en segundos, incluso con grandes volúmenes de datos.</p>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card h-100 hover-effect p-4">
+                        <i class="bi bi-graph-up-arrow feature-icon"></i>
+                        <h3 class="h4 mb-3">Alta Precisión</h3>
+                        <p class="text-muted">Modelos de hasta 90% de precisión validada mediante pruebas cruzadas y datasets clínicos reales.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

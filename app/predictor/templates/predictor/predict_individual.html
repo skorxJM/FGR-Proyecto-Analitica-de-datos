@@ -1,0 +1,255 @@
+{% extends 'base.html' %}
+{% block title %}Predicción Individual - FGR{% endblock %}
+
+{% block extra_head %}
+<style>
+    .form-container {
+        background: linear-gradient(135deg, rgba(30,30,30,0.95) 0%, rgba(20,20,20,0.98) 100%);
+        border-radius: 15px;
+        border: 1px solid rgba(0, 247, 255, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 247, 255, 0.05);
+    }
+    
+    .form-group {
+        margin-bottom: 1.8rem;
+    }
+    
+    .form-label {
+        display: block;
+        margin-bottom: 0.8rem;
+        color: var(--text-light);
+        font-weight: 500;
+        letter-spacing: 0.5px;
+    }
+    
+    .form-control, .form-select {
+        background-color: #2a2a2a;
+        border: 1px solid #333;
+        color: var(--text-light);
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        background-color: #2a2a2a;
+        border-color: var(--primary-neon);
+        box-shadow: 0 0 0 0.25rem rgba(0, 247, 255, 0.25);
+        color: var(--text-light);
+    }
+    
+    .result-card {
+        background: linear-gradient(145deg, #1a1a1a, #202020);
+        border-left: 4px solid var(--primary-neon) !important;
+        transition: all 0.3s ease;
+    }
+    
+    .result-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(0, 247, 255, 0.1) !important;
+    }
+    
+    .badge {
+        font-weight: 600;
+        padding: 8px 12px;
+        border-radius: 6px;
+    }
+    
+    .btn-primary {
+        background: transparent;
+        border: 2px solid var(--primary-neon);
+        color: var(--primary-neon);
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        padding: 12px 30px;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-primary:hover {
+        background: var(--primary-neon);
+        color: #121212;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.4);
+    }
+    
+    .btn-outline-primary {
+        border: 2px solid var(--primary-neon);
+        color: var(--primary-neon);
+    }
+    
+    .btn-outline-secondary {
+        border: 2px solid var(--text-muted);
+        color: var(--text-muted);
+    }
+    
+    .btn-outline-secondary:hover {
+        border-color: var(--text-light);
+        color: var(--text-light);
+    }
+    
+    .icon-wrapper {
+        background: rgba(0, 247, 255, 0.1) !important;
+        box-shadow: 0 0 20px rgba(0, 247, 255, 0.2);
+    }
+    
+    .glow-text {
+        text-shadow: 0 0 8px rgba(0, 247, 255, 0.5);
+    }
+
+    .card-body.bg-dark {
+    background-color: var(--card-bg) !important;
+    color: var(--text-light);
+    border-color: var(--primary-neon);
+}
+
+.card-body.bg-dark h6,
+.card-body.bg-dark p,
+.card-body.bg-dark span {
+    color: var(--text-light) !important;
+}
+
+.result-card h5 {
+    color: var(--text-light);
+}
+
+.result-card p {
+    color: var(--text-muted);
+}
+
+.badge.bg-danger.bg-opacity-10 {
+    background-color: rgba(255, 0, 0, 0.15) !important;
+    color: #ff4d4d !important;
+}
+
+.badge.bg-success.bg-opacity-10 {
+    background-color: rgba(0, 255, 0, 0.15) !important;
+    color: #4dff4d !important;
+}
+
+.badge.bg-primary.bg-opacity-10 {
+    background-color: rgba(0, 247, 255, 0.15) !important;
+    color: var(--primary-neon) !important;
+}
+
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <!-- Encabezado con icono -->
+            <div class="text-center mb-5">
+                <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center mb-4" style="width: 100px; height: 100px;">
+                    <i class="bi bi-clipboard2-pulse text-white" style="font-size: 3rem;"></i>
+                </div>
+                <h1 class="display-4 fw-bold mb-3 glow-text">Predicción <span class="text-primary">Individual</span></h1>
+                <p class="lead">Complete el formulario con los datos del paciente para obtener la predicción</p>
+            </div>
+
+            <!-- Tarjeta del formulario -->
+            <div class="card border-0 shadow-lg form-container">
+                <div class="card-body p-5">
+                    <form method="post" class="row g-4">
+                        {% csrf_token %}
+                        {% for field in form %}
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <label for="{{ field.id_for_label }}" class="form-label">
+                                    <i class="bi bi-arrow-right-circle text-primary me-2"></i>{{ field.label }}
+                                </label>
+                                {{ field }}
+                                {% if field.help_text %}
+                                    <small class="form-text text-muted mt-2 d-block">{{ field.help_text }}</small>
+                                {% endif %}
+                                {% if field.errors %}
+                                    <div class="text-danger small mt-2">{{ field.errors }}</div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        {% endfor %}
+                        
+                        <div class="col-12 text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="bi bi-calculator me-2"></i>Calcular Predicción
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Resultados -->
+            {% if prediction is not None %}
+            <div class="card border-0 shadow-lg mt-5 form-container">
+                <div class="card-body p-5">
+                    <div class="text-center mb-5">
+                        <div class="icon-wrapper rounded-circle d-inline-flex align-items-center justify-content-center mb-3 mx-auto" style="width: 80px; height: 80px;">
+                            <i class="bi bi-clipboard2-check text-primary" style="font-size: 2.5rem;"></i>
+                        </div>
+                        <h2 class="h2 fw-bold mb-3 glow-text text-light"">Resultado de la <span class="text-primary">Predicción</span></h2>
+                    </div>
+                    
+                    <div class="row justify-content-center">
+                        <div class="col-lg-8">
+                            <div class="result-card p-4 rounded-3">
+                                <div class="row align-items-center">
+                                    <div class="col-md-6 mb-4 mb-md-0">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-wrapper rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                                <i class="bi bi-diagram-3 text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-1">Modelo Utilizado</h5>
+                                                <p class="mb-0 text-muted">{{ selected_model|title }}</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-6">
+                                        <div class="d-flex align-items-center">
+                                            <div class="icon-wrapper rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
+                                                <i class="bi bi-graph-up-arrow text-primary"></i>
+                                            </div>
+                                            <div>
+                                                <h5 class="mb-1">Resultado</h5>
+                                                <p class="mb-0">
+                                                    {% if prediction == 1 %}
+                                                        <span class="badge bg-danger bg-opacity-10 text-danger">Positivo (FGR)</span>
+                                                    {% elif prediction == 0 %}
+                                                        <span class="badge bg-success bg-opacity-10 text-success">Negativo (Normal)</span>
+                                                    {% else %}
+                                                        <span class="badge bg-primary bg-opacity-10 text-primary">{{ prediction }}</span>
+                                                    {% endif %}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="text-center mt-4 pt-3">
+                                    <button class="btn btn-outline-primary" data-bs-toggle="collapse" data-bs-target="#detailsCollapse">
+                                        <i class="bi bi-info-circle me-2"></i>Detalles Técnicos
+                                    </button>
+                                    
+                                    <div class="collapse mt-4" id="detailsCollapse">
+                                        <div class="card card-body bg-dark border border-secondary">
+                                            <h6 class="fw-bold text-primary">Información Adicional:</h6>
+                                            <p class="mb-2">El modelo predictivo utiliza algoritmos avanzados de machine learning para determinar el riesgo de FGR basado en los parámetros ingresados.</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Botón de volver -->
+            <div class="text-center mt-5">
+                <a href="{% url 'home' %}" class="btn btn-outline-secondary px-4 py-3">
+                    <i class="bi bi-arrow-left me-2"></i>Volver al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
